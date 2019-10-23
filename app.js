@@ -38,18 +38,14 @@ yargs.command({
 yargs.command({
 	command: "list",
 	describe: "Lists note",
-	handler: function() {
-		console.log("Listing notes");
-	}
+	handler: () => notes.listNotes()
 });
 
 // Create read command
 yargs.command({
 	command: "read",
 	describe: "Read note",
-	handler: function() {
-		console.log("Reading note");
-	}
+	handler: () => console.log(notes.getNotes())
 });
 
 yargs.parse();
