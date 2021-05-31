@@ -1,57 +1,74 @@
+const fs = require("fs");
 const yargs = require("yargs");
-const notes = require("./notes");
 
-// Create add command
+const notes = require("./notes.js");
+
 yargs.command({
-	command: "add",
-	describe: "Add a new note",
-	builder: {
-		title: {
-			describe: "Note title",
-			demandOption: true,
-			type: "string"
-		},
-		body: {
-			describe: "Note body",
-			demandOption: true,
-			type: "string"
-		}
-	},
-	handler: ({ title, body }) => notes.addNotes(title, body)
+    command: "add",
+    describe: "Add a new note",
+    builder: {
+        title: {
+            describe: "Note title",
+            demandOption: true,
+            type: "string"
+        },
+        body: {
+            describe: "Note body",
+            demandOption: true,
+            type: "string"
+        }
+    },
+    handler: ({ title, body }) => notes.addNotes(title, body)
 });
 
-// Create remove command
 yargs.command({
-	command: "remove",
-	describe: "Remove a note",
-	builder: {
-		title: {
-			describe: "Remove body",
-			demandOption: true,
-			type: "string"
-		}
-	},
-	handler: ({ title }) => notes.removeNote(title)
+    command: "remove",
+    describe: "Remove note",
+    builder: {
+        title: {
+            describe: "Note title",
+            demandOption: true,
+            type: "string"
+        },
+    },
+    handler: ({ title }) => notes.removeNotes(title)
 });
 
-// Create list command
 yargs.command({
-	command: "list",
-	describe: "Lists note",
-	handler: () => notes.listNotes()
+    command: "list",
+    describe: "List notes",
+    handler: notes.listNotes
 });
 
-// Create read command
 yargs.command({
-	command: "read",
-	describe: "Read note",
-	builder: {
-		title: {
-			demandOption: true,
-			type: "string"
-		}
-	},
-	handler: ({ title }) => notes.readNote(title)
+    command: "read",
+    describe: "Read notes",
+    builder: {
+        title: {
+            describe: "Note title",
+            demandOption: true,
+            type: "string"
+        },
+    },
+    handler: ({ title }) => notes.readNotes(title)
+});
+
+yargs.command({
+    command: "edit",
+    describe: "Edit note",
+    builder: {
+        oldTitle: {
+            describe: "Title you want to change",
+            demandOption: true,
+            type: "string"
+        },
+        newTitle: {
+            describe: "New title name",
+            demandOption: true,
+            type: "string"
+        }
+    },
+    handler: ({ oldTitle, newTitle }) => notes.editNotes(oldTitle, newTitle)
 });
 
 yargs.parse();

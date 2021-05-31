@@ -1,71 +1,112 @@
-const chalk = require("chalk");
 const fs = require("fs");
+const chalk = require("chalk");
 
 const loadNotes = () => {
-	try {
-		const dataBuffer = fs.readFileSync("notes.json");
-		const dataJSON = dataBuffer.toString();
+    try {
+        return JSON.parse(fs.readFileSync("notes.json", "utf-8"));
+    }
 
-		return JSON.parse(dataJSON);
-	} catch (err) {
-		return [];
-	}
-};
-
-const addNotes = (title, body) => {
-	const notes = loadNotes();
-	const duplicateNote = notes.find((note) => note.title === title);
-
-	if (!duplicateNote) {
-		notes.push({ title, body });
-
-		saveNotes(notes);
-		console.log(chalk.green("New note added"));
-	} else {
-		console.log(chalk.red(`Note title ${title} is taken`));
-	}
-};
+    catch(err) {
+        return [];
+    }
+}
 
 const saveNotes = (notes) => {
-	const dataJSON = JSON.stringify(notes);
+    const jsonData = JSON.stringify(notes);
 
-	fs.writeFileSync("notes.json", dataJSON);
-};
+    fs.writeFileSync("notes.json", jsonData);
+}
+
+const addNotes = (noteTitle, noteBody) => {
+    const parsedData = loadNotes();
+    const duplicateNotes = parsedData.find((elm) => elm.title.toLowerCase() === noteTitle.toLowerCase());
+
+    if (!duplicateNotes) {
+        parsedData.push({ "title": noteTitle, "body": noteBody });
+
+        saveNotes(parsedData);
+
+        console.log(chalk.bgGreen.inverse("Note successfully added!"));
+    }
+
+    else {
+        console.log(chalk.bgRed.inverse("Note title already exists, note wasn't added!"));
+    }
+}
+
+const removeNotes = (noteTitle) => {
+    const parsedData = loadNotes();
+    const filteredData  = parsedData.filter((elm) => elm.title.toLowerCase() !== noteTitle.toLowerCase());
+
+    if (filteredData.length < parsedData.length) {
+        saveNotes(filteredData);
+
+        console.log(chalk.bgGreen.inverse("Note removed!"));
+    }
+
+    else {
+        console.log(chalk.bgRed.inverse("Note title not found!"));
+    }
+}
 
 const listNotes = () => {
-	const notes = loadNotes();
+    const currentNotes = loadNotes();
 
-	return notes.forEach((note) =>
-		console.log(`${chalk.blue("Note title:")} ${note.title}`)
-	);
-};
+    console.log(chalk.green("Listing all notes:"));
 
-const readNote = (title) => {
-	try {
-		const notes = loadNotes();
-		const note = notes.find((note) => note.title === title);
+    for (let note of currentNotes) {
+        console.log(`Note Title: ${chalk.green(note.title)}`);
+    }
+}
 
-		console.log(`${chalk.blue(note.title)} ${note.body}`);
-	} catch (err) {
-		console.log(chalk.red(`Couldn't find title ${title}`));
-	}
-};
+const readNotes = (noteTitle) => {
+    const currentNotes = loadNotes();
+    const findNote = currentNotes.find((currentNote) => currentNote.title.toLowerCase() === noteTitle.toLowerCase());
+    
+    if (findNote) {
+        console.log(`Note title: ${chalk.green(findNote.title)}`);
+        console.log(`Note body: ${chalk.blue(findNote.body)}`);  
+    } else {
+        console.log(chalk.red(`${noteTitle} note title not found!`));
+    }
+}
 
-const removeNote = (note) => {
-	const notes = loadNotes();
-	const filteredNotes = notes.filter((n) => n.title !== note);
+const editNotes = (OldTitle, newTitle) => {
+    const currentNotes = loadNotes();
+    const findNote = currentNotes.find((currentNote) => currentNote.title.toLowerCase() === OldTitle.toLowerCase());
+    const updatedNotes = [];
 
-	if (filteredNotes.length < notes.length) {
-		saveNotes(filteredNotes);
-		console.log(chalk.green(`Removing note ${note}`));
-	} else {
-		console.log(chalk.red(`Couldn't find the ${note} note`));
-	}
-};
+    if (OldTitle.toLowerCase() === newTitle.toLowerCase()) {
+        console.log(chalk.inverse.red("New and old title values are the same aborting update..."));
+    } 
+    
+    else {
+        if (findNote) {
+            for (let note of currentNotes) {
+                if (note.title == findNote.title) {
+                    updatedNotes.push({ "title": newTitle, "body": note.body });
+                } 
+                
+                else {
+                    updatedNotes.push({ "title": note.title, "body": note.body });
+                }
+            }
+    
+            saveNotes(updatedNotes);
+    
+            console.log(chalk.bgGreen(`${findNote.title} Title was updated to ${newTitle}`));
+        } 
+        
+        else {
+            console.log(chalk.bgRed("Title to edit not found!"));
+        }
+    }    
+}
 
 module.exports = {
-	addNotes,
-	listNotes,
-	readNote,
-	removeNote
+    addNotes,
+    removeNotes,
+    listNotes,
+    readNotes,
+    editNotes
 };
